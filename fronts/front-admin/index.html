@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Items — Biblioteca</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #1a1a2e; min-height: 100vh; font-family: 'Segoe UI', Arial, sans-serif; color: #e0e0f0; }
+        nav { background: #16213e; border-bottom: 2px solid #e94560; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+        nav h1 { color: #e94560; font-size: 1.2rem; }
+        nav ul { list-style: none; display: flex; gap: 1.5rem; }
+        nav a { color: #a0a0c0; text-decoration: none; font-size: 0.95rem; }
+        nav a:hover, nav a.active { color: #e94560; }
+        main { max-width: 900px; margin: 2rem auto; padding: 0 1.5rem; }
+        h2 { color: #e0e0f0; margin-bottom: 1.5rem; font-size: 1.4rem; }
+        table { width: 100%; border-collapse: collapse; background: #16213e; border-radius: 10px; overflow: hidden; }
+        thead { background: #0f3460; color: #e94560; }
+        th, td { padding: 0.85rem 1rem; text-align: left; font-size: 0.9rem; }
+        tbody tr { border-bottom: 1px solid #0f3460; }
+        tbody tr:hover { background: #0f3460; }
+        a { color: #e94560; text-decoration: none; font-weight: 600; }
+        a:hover { text-decoration: underline; }
+        .badge { padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .si { background: #1a4a2e; color: #4caf50; }
+        .no { background: #4a1a1a; color: #e94560; }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1> Biblioteca</h1>
+        <ul>
+            <li><a href="/admin" class="active">Items</a></li>
+            <li><a href="/admin/procedimiento.html">Procedimiento</a></li>
+            <li><a href="/cerrar-sesion">Cerrar sesión</a></li>
+        </ul>
+    </nav>
+    <main>
+        <h2>Items</h2>
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Título</th><th>Autor</th><th>Género</th><th>Año</th><th>Páginas</th><th>Disponible</th></tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+        </table>
+    </main>
+    <script>
+        // Consultamos la API y renderizamos los libros en la tabla
+        // Cada título es un enlace a la página ítem con el id como query string
+        fetch('/api/v1/libros')
+            .then(response => {
+                if (response.status === 401) { window.location.href = '/login'; return }
+                return response.json()
+            })
+            .then(data => {
+                if (!data) return
+                const tbody = document.getElementById('tbody')
+                data.datos.forEach(libro => {
+                    const tr = document.createElement('tr')
+                    tr.innerHTML = `
+                        <td>${libro.id}</td>
+                        <td><a href="/admin/item.html?id=${libro.id}">${libro.titulo}</a></td>
+                        <td>${libro.autor}</td>
+                        <td>${libro.genero}</td>
+                        <td>${libro.anio}</td>
+                        <td>${libro.paginas}</td>
+                        <td><span class="badge ${libro.disponible ? 'si' : 'no'}">${libro.disponible ? 'Sí' : 'No'}</span></td>
+                    `
+                    tbody.appendChild(tr)
+                })
+            })
+    </script>
+</body>
+</html>

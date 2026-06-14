@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ítem — Biblioteca</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #1a1a2e; min-height: 100vh; font-family: 'Segoe UI', Arial, sans-serif; color: #e0e0f0; }
+        nav { background: #16213e; border-bottom: 2px solid #e94560; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+        nav h1 { color: #e94560; font-size: 1.2rem; }
+        nav ul { list-style: none; display: flex; gap: 1.5rem; }
+        nav a { color: #a0a0c0; text-decoration: none; font-size: 0.95rem; }
+        nav a:hover { color: #e94560; }
+        main { max-width: 600px; margin: 2rem auto; padding: 0 1.5rem; }
+        .card { background: #16213e; border: 1px solid #0f3460; border-radius: 12px; padding: 2rem; }
+        .card h2 { color: #e94560; font-size: 1.5rem; margin-bottom: 1.2rem; }
+        .campo { display: flex; gap: 1rem; padding: 0.6rem 0; border-bottom: 1px solid #0f3460; }
+        .campo:last-of-type { border-bottom: none; }
+        .etiqueta { color: #a0a0c0; font-size: 0.85rem; min-width: 100px; font-weight: 600; }
+        .valor { color: #e0e0f0; }
+        .badge { padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.78rem; font-weight: 600; }
+        .si { background: #1a4a2e; color: #4caf50; }
+        .no { background: #4a1a1a; color: #e94560; }
+        .volver { display: inline-block; margin-top: 1.5rem; color: #e94560; text-decoration: none; }
+        .volver:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1> Biblioteca</h1>
+        <ul>
+            <li><a href="/admin">Items</a></li>
+            <li><a href="/admin/procedimiento.html">Procedimiento</a></li>
+            <li><a href="/cerrar-sesion">Cerrar sesión</a></li>
+        </ul>
+    </nav>
+    <main>
+        <div class="card" id="card"><p>Cargando...</p></div>
+    </main>
+    <script>
+        // Obtenemos el id del query string (?id=N) y consultamos la API
+        const params = new URLSearchParams(window.location.search)
+        const id = params.get('id')
+        if (!id) {
+            document.getElementById('card').innerHTML = '<p style="color:#e94560">No se especificó un ítem.</p>'
+        } else {
+            fetch(`/api/v1/libros/${id}`)
+                .then(response => {
+                    if (response.status === 401) { window.location.href = '/login'; return }
+                    if (!response.ok) throw new Error()
+                    return response.json()
+                })
+                .then(data => {
+                    if (!data) return
+                    const libro = data.datos[0]
+                    document.getElementById('card').innerHTML = `
+                        <h2>${libro.titulo}</h2>
+                        <div class="campo"><span class="etiqueta">ID</span><span class="valor">${libro.id}</span></div>
+                        <div class="campo"><span class="etiqueta">Autor</span><span class="valor">${libro.autor}</span></div>
+                        <div class="campo"><span class="etiqueta">Género</span><span class="valor">${libro.genero}</span></div>
+                        <div class="campo"><span class="etiqueta">Año</span><span class="valor">${libro.anio}</span></div>
+                        <div class="campo"><span class="etiqueta">Páginas</span><span class="valor">${libro.paginas}</span></div>
+                        <div class="campo"><span class="etiqueta">Disponible</span><span class="valor"><span class="badge ${libro.disponible ? 'si' : 'no'}">${libro.disponible ? 'Sí' : 'No'}</span></span></div>
+                        <a class="volver" href="/admin">← Volver a Items</a>
+                    `
+                })
+                .catch(() => {
+                    document.getElementById('card').innerHTML = '<p style="color:#e94560">Ítem no encontrado.</p>'
+                })
+        }
+    </script>
+</body>
+</html>

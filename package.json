@@ -1,0 +1,35 @@
+{
+<<<<<<< HEAD
+  "name": "parcialaw2",
+  "version": "1.0.0",
+  "description": "Parcial 2 AW2 - API REST con seguridad JWT y frontend",
+  "main": "index.mjs",
+  "scripts": {
+    "dev": "nodemon index.mjs",
+    "start": "node index.mjs"
+  },
+  "type": "module",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.21.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+=======
+  "name": "parcial1-aw2",
+  "version": "1.0.0",
+  "description": "Parcial 1 - Aplicaciones Web 2 - API REST de Biblioteca",
+  "main": "index.mjs",
+  "scripts": {
+    "start": "node index.mjs",
+    "dev": "node --watch index.mjs"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+>>>>>>> 728c2363aaa12cb811ca1d288a80e4d0f0bca507
+  }
+}

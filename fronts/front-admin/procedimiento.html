@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Procedimiento — Biblioteca</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: #1a1a2e; min-height: 100vh; font-family: 'Segoe UI', Arial, sans-serif; color: #e0e0f0; }
+        nav { background: #16213e; border-bottom: 2px solid #e94560; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; }
+        nav h1 { color: #e94560; font-size: 1.2rem; }
+        nav ul { list-style: none; display: flex; gap: 1.5rem; }
+        nav a { color: #a0a0c0; text-decoration: none; font-size: 0.95rem; }
+        nav a:hover, nav a.active { color: #e94560; }
+        main { max-width: 600px; margin: 2rem auto; padding: 0 1.5rem; }
+        .card { background: #16213e; border: 1px solid #0f3460; border-radius: 12px; padding: 2rem; }
+        h2 { color: #e0e0f0; margin-bottom: 0.8rem; font-size: 1.3rem; }
+        .descripcion { color: #a0a0c0; font-size: 0.9rem; line-height: 1.6; margin-bottom: 1.5rem; border-left: 3px solid #e94560; padding-left: 1rem; }
+        button { padding: 0.75rem 1.8rem; background: #e94560; color: #fff; border: none; border-radius: 6px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-bottom: 1.5rem; }
+        button:hover { background: #c73652; }
+        .resultado { background: #0f3460; border-radius: 8px; padding: 1.2rem; display: none; }
+        .resultado.visible { display: block; }
+        .dato { font-size: 2rem; font-weight: 700; color: #e94560; }
+        .etiqueta { color: #a0a0c0; font-size: 0.85rem; margin-top: 0.3rem; }
+        .subtexto { color: #c0c0d0; font-size: 0.9rem; margin-top: 0.8rem; }
+        .exito { color: #4caf50; font-weight: 600; margin-top: 0.5rem; }
+        .error { color: #e94560; font-size: 0.9rem; margin-top: 0.5rem; }
+    </style>
+</head>
+<body>
+    <nav>
+        <h1> Biblioteca</h1>
+        <ul>
+            <li><a href="/admin">Items</a></li>
+            <li><a href="/admin/procedimiento.html" class="active">Procedimiento</a></li>
+            <li><a href="/cerrar-sesion">Cerrar sesión</a></li>
+        </ul>
+    </nav>
+    <main>
+        <div class="card">
+            <h2>Calcular promedio de páginas</h2>
+            <p class="descripcion">
+                Este procedimiento recorre todos los libros de la colección,
+                acumula el total de páginas y calcula el promedio.
+                También informa la cantidad total de libros registrados.
+            </p>
+            <button id="btn">Ejecutar procedimiento</button>
+            <div class="resultado" id="resultado">
+                <div class="dato" id="promedio">—</div>
+                <div class="etiqueta">páginas promedio</div>
+                <div class="subtexto" id="total"></div>
+                <div class="exito">✓ Procedimiento ejecutado con éxito</div>
+            </div>
+            <div class="error" id="error"></div>
+        </div>
+    </main>
+    <script>
+        document.getElementById('btn').addEventListener('click', function() {
+            document.getElementById('error').textContent = ''
+            document.getElementById('resultado').classList.remove('visible')
+            fetch('/api/v1/libros/promedio/paginas')
+                .then(response => {
+                    if (response.status === 401) { window.location.href = '/login'; return }
+                    if (!response.ok) throw new Error()
+                    return response.json()
+                })
+                .then(data => {
+                    if (!data) return
+                    document.getElementById('promedio').textContent = data.datos.promedioPaginas.toFixed(2)
+                    document.getElementById('total').textContent = `Total de libros: ${data.datos.totalLibros}`
+                    document.getElementById('resultado').classList.add('visible')
+                })
+                .catch(() => {
+                    document.getElementById('error').textContent = 'Error al ejecutar el procedimiento.'
+                })
+        })
+    </script>
+</body>
+</html>
