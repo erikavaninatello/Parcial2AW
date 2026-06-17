@@ -1,6 +1,6 @@
 // Controlador de autenticación
-// POST /autenticar — verifica credenciales contra la BD, genera token JWT y lo guarda en cookie httpOnly
-// GET  /cerrar-sesion — elimina la cookie del token y redirige al login
+// POST /autenticar    — verifica credenciales contra la BD, genera JWT y lo guarda en cookie firmada
+// GET  /cerrar-sesion — elimina la cookie y redirige al login
 
 import bcrypt from 'bcryptjs'
 import jwt    from 'jsonwebtoken'
@@ -24,7 +24,7 @@ export async function autenticar(req, res) {
             [usuario]
         )
 
-        // Si no existe el usuario
+        // Si no existe el usuario respondemos 401 sin dar detalles
         if (resultado.rowCount === 0) return res.sendStatus(401)
 
         // bcrypt.compare compara la contraseña recibida en texto plano
@@ -36,33 +36,36 @@ export async function autenticar(req, res) {
     }
 
     if (verificado) {
-        try {
-            // Generamos el token JWT firmado con JWT_FIRMA del .env
-            // expiresIn: el token expira en 2 horas, forzando al usuario a re-autenticarse
-            const token = jwt.sign(
-                { usuario: usuario },
-                process.env.JWT_FIRMA,
-                { expiresIn: '2h' }
-            )
 
-            // Guardamos el token en una cookie httpOnly
-            // httpOnly: true -- JavaScript del navegador NO puede leerla (protección XSS)
-            // sameSite: 'lax' -- solo se envía en navegación del mismo dominio
-            // maxAge coincide con expiresIn del JWT (2 horas en milisegundos)
-            res.cookie('token', token, {
-                httpOnly: true,
-                sameSite: 'lax',
-                maxAge:   1000 * 60 * 60 * 2
-            })
+        // jwt.sign genera el token firmado con JWT_FIRMA del .env
+        // expiresIn: el token expira en 1h, forzando al usuario a re-autenticarse
+        // Se usa con callback igual que en clase
+        jwt.sign(
+            { usuario: usuario },
+            process.env.JWT_FIRMA,
+            { expiresIn: '1h' },
+            (error, token) => {
 
-            res.redirect('/admin')
+                if (error) return res.sendStatus(500)
 
-        } catch (error) {
-            res.sendStatus(500)
-        }
+                // Guardamos el JWT en una cookie firmada
+                // signed: true   --> se firma con COOKIE_FIRMA del cookieParser 
+                // httpOnly: true --> JavaScript del navegador NO puede leerla 
+                // sameSite: lax  --> solo se envía en navegación del mismo dominio
+                // secure: true   --> solo se envía por HTTPS
+                res.cookie('token', token, {
+                    secure:   true,
+                    httpOnly: true,
+                    sameSite: 'lax',
+                    signed:   true
+                })
+
+                res.redirect('/admin')
+            }
+        )
 
     } else {
-        // Contraseña incorrecta — mismo código que "usuario no encontrado"
+        // Contraseña incorrecta — mismo código 401 que "usuario no encontrado"
         // para no revelar cuál de los dos datos falló
         res.sendStatus(401)
     }
@@ -72,7 +75,7 @@ export async function autenticar(req, res) {
 
 // GET /cerrar-sesion
 export function cerrarSesion(req, res) {
-    // Eliminamos la cookie asignándole maxAge 0, lo que la expira de inmediato
+    // Eliminamos la cookie asignándole maxAge 0
     res.cookie('token', '', { maxAge: 0 })
     res.redirect('/login')
 }

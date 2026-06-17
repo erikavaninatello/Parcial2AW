@@ -3,7 +3,7 @@
 // Las credenciales se leen desde el .env
 
 import { Pool } from 'pg'
-import dotenv from 'dotenv'
+import dotenv   from 'dotenv'
 dotenv.config()
 
 const pool = new Pool({

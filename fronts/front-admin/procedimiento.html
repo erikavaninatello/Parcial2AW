@@ -54,26 +54,42 @@
             <div class="error" id="error"></div>
         </div>
     </main>
-    <script>
-        document.getElementById('btn').addEventListener('click', function() {
-            document.getElementById('error').textContent = ''
-            document.getElementById('resultado').classList.remove('visible')
-            fetch('/api/v1/libros/promedio/paginas')
-                .then(response => {
-                    if (response.status === 401) { window.location.href = '/login'; return }
-                    if (!response.ok) throw new Error()
-                    return response.json()
-                })
-                .then(data => {
-                    if (!data) return
-                    document.getElementById('promedio').textContent = data.datos.promedioPaginas.toFixed(2)
-                    document.getElementById('total').textContent = `Total de libros: ${data.datos.totalLibros}`
-                    document.getElementById('resultado').classList.add('visible')
-                })
-                .catch(() => {
-                    document.getElementById('error').textContent = 'Error al ejecutar el procedimiento.'
-                })
-        })
-    </script>
+   <script>
+    document.getElementById('btn').addEventListener('click', function() {
+        document.getElementById('error').textContent = ''
+        document.getElementById('resultado').classList.remove('visible')
+
+        fetch('/procedimiento/promedio-paginas')
+            .then(response => {
+                // Si el token expiró o no existe → redirigimos al login
+                if (response.status === 401) {
+                    window.location.href = '/login'
+                    return
+                }
+                // Si el servidor tuvo un error interno
+                if (response.status === 500) {
+                    throw new Error('500')
+                }
+                // Si la respuesta no fue exitosa por otro motivo
+                if (!response.ok) {
+                    throw new Error(response.status)
+                }
+                return response.json()
+            })
+            .then(data => {
+                if (!data) return
+                document.getElementById('promedio').textContent = data.datos.promedioPaginas.toFixed(2)
+                document.getElementById('total').textContent = `Total de libros: ${data.datos.totalLibros}`
+                document.getElementById('resultado').classList.add('visible')
+            })
+            .catch((err) => {
+                if (err.message === '500') {
+                    document.getElementById('error').textContent = 'Error interno del servidor.'
+                } else {
+                    document.getElementById('error').textContent = 'No se pudo ejecutar el procedimiento.'
+                }
+            })
+    })
+</script>
 </body>
 </html>

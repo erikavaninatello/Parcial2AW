@@ -12,13 +12,14 @@ const rutasLibros = new Router()
 // GET /api/v1/libros — devuelve todos los libros
 rutasLibros.get('/api/v1/libros', controlador.obtenerTodos)
 
-// Va ANTES de /:id para que Express no interprete "promedio" como un id
-// Este endpoint está por fuera de los principios REST porque responde a un procedimiento
-// y no a la obtención de un recurso identificable
-rutasLibros.get('/api/v1/libros/promedio/paginas', controlador.calcularPromedioPaginas)
-
 // GET /api/v1/libros/:id — devuelve un libro por su id
 // validarId se ejecuta antes del controlador para verificar que :id sea válido
+// Va DESPUÉS de /procedimiento para que Express no interprete "procedimiento" como un id
 rutasLibros.get('/api/v1/libros/:id', validarId, controlador.obtenerUno)
+
+// GET /procedimiento/promedio-paginas — endpoint de procedimiento
+// Está por fuera de la API REST y de su prefijo /api/v1/ porque no identifica un recurso,
+// sino que ejecuta un cálculo sobre los datos
+rutasLibros.get('/procedimiento/promedio-paginas', controlador.calcularPromedioPaginas)
 
 export default rutasLibros

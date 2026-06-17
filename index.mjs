@@ -1,8 +1,6 @@
-// Punto de entrada del servidor — Parcial 2 AW2
-// Patrón MVC: el código está organizado en módulos separados por funcionalidad
-// Seguridad implementada con JWT firmado, guardado en cookie httpOnly
 
-import 'dotenv/config'
+// Seguridad implementada con JWT firmado, guardado en cookie firmada httpOnly
+
 import express      from 'express'
 import cookieParser from 'cookie-parser'
 
@@ -15,23 +13,21 @@ const app = express()
 
 // --- Middlewares globales ---
 // express.json() permite leer el body en formato JSON (peticiones fetch del frontend)
-// express.urlencoded() permite leer formularios HTML tradicionales
-// cookieParser() permite leer las cookies enviadas por el navegador
+// cookieParser con COOKIE_FIRMA permite leer y verificar cookies firmadas con req.signedCookies
 app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use(cookieParser())
+app.use(cookieParser(process.env.COOKIE_FIRMA))
 
 // --- Rutas públicas ---
-// Accesibles sin autenticación: login y sus recursos estáticos
+// Accesibles sin autenticación
 app.use(rutasAutenticacion)
 app.use('/login', express.static('./fronts/front-login'))
 
 // --- Rutas protegidas ---
 // verificarAcceso se ejecuta antes de servir cualquier recurso o endpoint del área admin
-// Si el token no es válido - - redirige a /login (páginas) o responde 401 (API)
+// Si el token no es válido --> redirige a /login (páginas) o responde 401 (API)
 app.use('/admin', verificarAcceso, express.static('./fronts/front-admin'))
 app.use(verificarAcceso, rutasLibros)
 
 app.listen(PUERTO, () => {
-    console.log(`Servidor en http://localhost:${PUERTO}`)
+    console.log(`Servidor escuchando en el puerto ${PUERTO}`)
 })

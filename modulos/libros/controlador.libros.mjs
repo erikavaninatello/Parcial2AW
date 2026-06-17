@@ -39,8 +39,8 @@ export function obtenerUno(req, res) {
 }
 
 
-// GET /api/v1/libros/promedio/paginas — endpoint de procedimiento
-// Está fuera de los principios REST porque no identifica un recurso con la ruta,
+// GET /procedimiento/promedio-paginas — endpoint de procedimiento
+// Está por fuera de la API REST porque no identifica un recurso con la ruta,
 // sino que ejecuta un cálculo sobre los datos
 // Recorre todos los libros con forEach, acumula el total de páginas y calcula el promedio
 export function calcularPromedioPaginas(req, res) {
@@ -50,9 +50,9 @@ export function calcularPromedioPaginas(req, res) {
     const promedio = totalPaginas / libros.length
 
     res.status(200).json({
-        datos:  {
-            promedioPaginas: promedio,
-            totalLibros:     libros.length
+        datos: {
+            promedioPaginas:promedio,
+            totalLibros:libros.length
         },
         status: 200
     })
