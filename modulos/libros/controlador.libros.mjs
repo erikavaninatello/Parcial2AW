@@ -1,6 +1,7 @@
 // Controlador de libros
 // Lógica de negocio del módulo libros
 // Recibe las peticiones, consulta el modelo y responde al cliente
+// El formato de respuesta sigue el criterio de clase: { datos, url, status }
 
 import libros from './modelo.libros.mjs'
 
@@ -16,9 +17,13 @@ export function obtenerTodos(req, res) {
 
 
 // GET /api/v1/libros/:id — devuelve un libro por su id
+// El middleware validarId ya garantizó que req.params.id es un entero positivo
 export function obtenerUno(req, res) {
 
     const id_libro = Number(req.params.id)
+
+    // filter devuelve un nuevo array con los elementos que cumplen la condición
+    // no modifica el array original
     const librosFiltrados = libros.filter((libro) => libro.id === id_libro)
 
     if (librosFiltrados.length > 0) {
@@ -34,7 +39,10 @@ export function obtenerUno(req, res) {
 }
 
 
-// GET /api/v1/libros/promedio/paginas — calcula el promedio de páginas de todos los libros
+// GET /api/v1/libros/promedio/paginas — endpoint de procedimiento
+// Está fuera de los principios REST porque no identifica un recurso con la ruta,
+// sino que ejecuta un cálculo sobre los datos
+// Recorre todos los libros con forEach, acumula el total de páginas y calcula el promedio
 export function calcularPromedioPaginas(req, res) {
 
     let totalPaginas = 0
@@ -42,7 +50,10 @@ export function calcularPromedioPaginas(req, res) {
     const promedio = totalPaginas / libros.length
 
     res.status(200).json({
-        datos:  { promedioPaginas: promedio, totalLibros: libros.length },
+        datos:  {
+            promedioPaginas: promedio,
+            totalLibros:     libros.length
+        },
         status: 200
     })
 
