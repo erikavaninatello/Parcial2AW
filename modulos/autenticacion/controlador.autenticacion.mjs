@@ -24,7 +24,7 @@ export async function autenticar(req, res) {
             [usuario]
         )
 
-        // Si no existe el usuario respondemos 401 sin dar detalles
+        // Si no existe el usuario respondemos 401 sin dar detalles (buena práctica de seguridad)
         if (resultado.rowCount === 0) return res.sendStatus(401)
 
         // bcrypt.compare compara la contraseña recibida en texto plano
@@ -39,7 +39,6 @@ export async function autenticar(req, res) {
 
         // jwt.sign genera el token firmado con JWT_FIRMA del .env
         // expiresIn: el token expira en 1h, forzando al usuario a re-autenticarse
-        // Se usa con callback igual que en clase
         jwt.sign(
             { usuario: usuario },
             process.env.JWT_FIRMA,
@@ -49,12 +48,9 @@ export async function autenticar(req, res) {
                 if (error) return res.sendStatus(500)
 
                 // Guardamos el JWT en una cookie firmada
-                // signed: true   --> se firma con COOKIE_FIRMA del cookieParser 
-                // httpOnly: true --> JavaScript del navegador NO puede leerla 
-                // sameSite: lax  --> solo se envía en navegación del mismo dominio
-                // secure: true   --> solo se envía por HTTPS
+               
                 res.cookie('token', token, {
-                    secure:   true,
+                    secure:   false,
                     httpOnly: true,
                     sameSite: 'lax',
                     signed:   true
@@ -65,7 +61,7 @@ export async function autenticar(req, res) {
         )
 
     } else {
-        // Contraseña incorrecta — mismo código 401 que "usuario no encontrado"
+        // Contraseña incorrecta
         // para no revelar cuál de los dos datos falló
         res.sendStatus(401)
     }

@@ -24,10 +24,11 @@ app.use('/login', express.static('./fronts/front-login'))
 
 // --- Rutas protegidas ---
 // verificarAcceso se ejecuta antes de servir cualquier recurso o endpoint del área admin
-// Si el token no es válido --> redirige a /login (páginas) o responde 401 (API)
+// Si el token no es válido --> redirige a /login 
 app.use('/admin', verificarAcceso, express.static('./fronts/front-admin'))
 app.use(verificarAcceso, rutasLibros)
 
 app.listen(PUERTO, () => {
     console.log(`Servidor escuchando en el puerto ${PUERTO}`)
 })
+
